@@ -93,8 +93,8 @@ class _InteractiveMapState extends State<InteractiveMap> {
     countrycode = locationParts[1].trim();
 
     modisData = fetchModisData();
-    final extant = fetchExtentForCountry(countrycode);
-    print(extant);
+    // final extant = fetchExtentForCountry(countrycode);
+    // print(extant);
     // LatLngBounds(LatLng() , LatLng())
   }
 
