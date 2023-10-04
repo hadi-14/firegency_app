@@ -63,24 +63,27 @@ class _InteractiveMapState extends State<InteractiveMap> {
     }
   }
 
-Future<String?> fetchExtentForCountry(String countryCode) async {
-  final response = await http.get(Uri.parse('https://firms.modaps.eosdis.nasa.gov/api/countries'));
+  Future<String?> fetchExtentForCountry(String countryCode) async {
+    final response = await http
+        .get(Uri.parse('https://firms.modaps.eosdis.nasa.gov/api/countries/'));
 
-  if (response.statusCode == 200) {
-    final csvData = const CsvToListConverter().convert(response.body, eol: "\n", textDelimiter: ";");
-    
-    for (final row in csvData) {
-      final abreviation = row[1] as String;
-      final extent = row[3] as String;
+    if (response.statusCode == 200) {
+      print(response.body);
+      final csvData = const CsvToListConverter()
+          .convert(response.body, eol: "\n", textDelimiter: ";");
 
-      if (abreviation == countryCode) {
-        return extent;
+      for (final row in csvData) {
+        final abreviation = row[1] as String;
+        final extent = row[3] as String;
+
+        if (abreviation == countryCode) {
+          return extent;
+        }
       }
     }
-  }
 
-  return null; // Return null if data fetching or parsing fails
-}
+    return null; // Return null if data fetching or parsing fails
+  }
 
   @override
   void initState() {
