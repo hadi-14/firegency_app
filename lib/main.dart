@@ -21,7 +21,7 @@ class FiregencyApp extends StatelessWidget {
       600: Color(0xFFFF5A00),
       700: Color(0xFFFF5A00),
       800: Color(0xFFFF5A00),
-      900: Color(0xFFFF5A00),
+      900: Color(git),
     },
   );
 
@@ -82,7 +82,7 @@ class _LocationScreenState extends State<LocationScreen> {
     'Bosnia and Herzegovina, BIH',
     'Saint-Barthelemy, BLM',
     //'Belarus, BLR',
-        'Belize, BLZ',
+    'Belize, BLZ',
     'Bermuda, BMU',
     'Bolivia, BOL',
     'Brazil, BRA',
