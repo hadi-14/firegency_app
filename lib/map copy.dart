@@ -56,7 +56,7 @@ class _InteractiveMapState extends State<InteractiveMap> {
             bottom: 0,
             child: Container(
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: Colors.0xFFFF5A00,
                 borderRadius: BorderRadius.only(
                   topLeft: Radius.circular(20.0),
                   topRight: Radius.circular(20.0),
@@ -72,7 +72,7 @@ class _InteractiveMapState extends State<InteractiveMap> {
               ),
               padding: EdgeInsets.all(16.0),
               child: Text(
-                'Information goes here',
+                'Pakistan Day:xyz',
                 style: TextStyle(fontSize: 18.0, color: Colors.black),
               ),
             ),
