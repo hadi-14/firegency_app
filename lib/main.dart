@@ -60,7 +60,7 @@ class _LocationScreenState extends State<LocationScreen> {
   late AutoCompleteTextField<String> textField;
   GlobalKey<AutoCompleteTextFieldState<String>> key = GlobalKey();
   Map<String, dynamic> selectedLocation = {"": ""};
-  String selectedCountry = "e.g. Pakistan";
+  // String selectedCountry = "e.g. Pakistan";
   TextEditingController inputController =
       TextEditingController(); // Controller for the user's input
   List<String> suggestions = []; // List to store autocomplete suggestions
@@ -72,14 +72,15 @@ class _LocationScreenState extends State<LocationScreen> {
         await rootBundle.loadString('assets/countries.json');
     final List<dynamic> jsonCountries = json.decode(countriesData);
     return jsonCountries.cast<Map<String, dynamic>>();
-}
-
-  Map<String, dynamic> getCountryDataByName(String name) {
-    final countryData = countries.firstWhere(
-        (country) => country['name'] == name,
-        orElse: () => {"": ""});
-    return countryData;
   }
+
+Map<String, dynamic> getCountryDataByName(String name) {
+  final countryData = locations.firstWhere(
+    (country) => country['name'].toLowerCase() == name.toLowerCase(),
+    orElse: () => {},
+  );
+  return countryData;
+}
 
   // Sample list of locations (you can replace this with your data source)
   List<Map<String, dynamic>> locations = [];
@@ -98,7 +99,7 @@ class _LocationScreenState extends State<LocationScreen> {
           }
         }
 
-        print(countryNames);
+        // print(countryNames);
       });
     });
   }
@@ -145,6 +146,7 @@ class _LocationScreenState extends State<LocationScreen> {
                 itemSubmitted: (value) {
                   setState(() {
                     selectedLocation = getCountryDataByName(value);
+                    print("$value  $selectedLocation");
                   });
                 },
               ),
@@ -152,7 +154,7 @@ class _LocationScreenState extends State<LocationScreen> {
             ElevatedButton(
               onPressed: () {
                 // Find the selected location based on user input
-                selectedLocation = getCountryDataByName(selectedCountry);
+                // selectedLocation = getCountryDataByName(selectedCountry);
                 if (selectedLocation.isNotEmpty) {
                   // Navigate to the next page with the selected location
                   Navigator.push(

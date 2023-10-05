@@ -90,7 +90,6 @@ class _InteractiveMapState extends State<InteractiveMap> {
     super.initState();
 
     countrycode = widget.selectedLocation['code'];
-
     modisData = fetchModisData();
     // final extant = fetchExtentForCountry(countrycode);
     // print(extant);
@@ -148,7 +147,7 @@ class _InteractiveMapState extends State<InteractiveMap> {
             } else {
               return FlutterMap(
                 options: MapOptions(
-                  // bounds: LatLngBounds(LatLng(widget.selectedLocation) , LatLng()),
+                  bounds: LatLngBounds(LatLng(widget.selectedLocation['coordinates'][0], widget.selectedLocation['coordinates'][1]) , LatLng(widget.selectedLocation['coordinates'][2], widget.selectedLocation['coordinates'][3])),
                   zoom: 5.0,
                 ),
                 children: [
