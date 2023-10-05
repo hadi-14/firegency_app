@@ -59,7 +59,7 @@ class CountriesData {
 class _LocationScreenState extends State<LocationScreen> {
   late AutoCompleteTextField<String> textField;
   GlobalKey<AutoCompleteTextFieldState<String>> key = GlobalKey();
-  Map<String, dynamic> selectedLocation = {"": ""};
+  Map<String, dynamic> selectedLocation = { };
   // String selectedCountry = "e.g. Pakistan";
   TextEditingController inputController =
       TextEditingController(); // Controller for the user's input
@@ -153,10 +153,8 @@ Map<String, dynamic> getCountryDataByName(String name) {
             ),
             ElevatedButton(
               onPressed: () {
-                // Find the selected location based on user input
                 // selectedLocation = getCountryDataByName(selectedCountry);
                 if (selectedLocation.isNotEmpty) {
-                  // Navigate to the next page with the selected location
                   Navigator.push(
                     context,
                     MaterialPageRoute(
@@ -171,8 +169,7 @@ Map<String, dynamic> getCountryDataByName(String name) {
                     builder: (context) {
                       return AlertDialog(
                         title: const Text('Invalid Input'),
-                        content:
-                            const Text('Please enter a valid country name.'),
+                        content: const Text('Please enter a valid country name.'),
                         actions: <Widget>[
                           TextButton(
                             onPressed: () {
