@@ -10,7 +10,7 @@ import 'package:http/http.dart' as http;
 import 'package:csv/csv.dart';
 
 class InteractiveMap extends StatefulWidget {
-  final String selectedLocation; // Declare the selectedLocation field
+  final Map<String, dynamic> selectedLocation; // Declare the selectedLocation field
 
   // Constructor to receive the selectedLocation value
   InteractiveMap({required this.selectedLocation, Key? key}) : super(key: key);
@@ -89,8 +89,7 @@ class _InteractiveMapState extends State<InteractiveMap> {
   void initState() {
     super.initState();
 
-    List<String> locationParts = widget.selectedLocation.split(',');
-    countrycode = locationParts[1].trim();
+    countrycode = widget.selectedLocation['code'];
 
     modisData = fetchModisData();
     // final extant = fetchExtentForCountry(countrycode);
@@ -149,7 +148,7 @@ class _InteractiveMapState extends State<InteractiveMap> {
             } else {
               return FlutterMap(
                 options: MapOptions(
-                  // bounds: LatLngBounds(LatLng() , LatLng()),
+                  // bounds: LatLngBounds(LatLng(widget.selectedLocation) , LatLng()),
                   zoom: 5.0,
                 ),
                 children: [
