@@ -34,7 +34,7 @@ class FiregencyApp extends StatelessWidget {
       theme: ThemeData(
           colorScheme: ColorScheme.fromSwatch(
               primarySwatch: customPrimaryColor,
-              cardColor: Color(0xFFFF5A00),
+              cardColor: const Color(0xFFFF5A00),
               backgroundColor: Colors.red,
               brightness: Brightness.dark)),
       home: const LocationScreen(),
@@ -59,7 +59,7 @@ class CountriesData {
 class _LocationScreenState extends State<LocationScreen> {
   late AutoCompleteTextField<String> textField;
   GlobalKey<AutoCompleteTextFieldState<String>> key = GlobalKey();
-  Map<String, dynamic> selectedLocation = { };
+  Map<String, dynamic> selectedLocation = {};
   // String selectedCountry = "e.g. Pakistan";
   TextEditingController inputController =
       TextEditingController(); // Controller for the user's input
@@ -74,13 +74,13 @@ class _LocationScreenState extends State<LocationScreen> {
     return jsonCountries.cast<Map<String, dynamic>>();
   }
 
-Map<String, dynamic> getCountryDataByName(String name) {
-  final countryData = locations.firstWhere(
-    (country) => country['name'].toLowerCase() == name.toLowerCase(),
-    orElse: () => {},
-  );
-  return countryData;
-}
+  Map<String, dynamic> getCountryDataByName(String name) {
+    final countryData = locations.firstWhere(
+      (country) => country['name'].toLowerCase() == name.toLowerCase(),
+      orElse: () => {},
+    );
+    return countryData;
+  }
 
   // Sample list of locations (you can replace this with your data source)
   List<Map<String, dynamic>> locations = [];
@@ -146,7 +146,6 @@ Map<String, dynamic> getCountryDataByName(String name) {
                 itemSubmitted: (value) {
                   setState(() {
                     selectedLocation = getCountryDataByName(value);
-                    print("$value  $selectedLocation");
                   });
                 },
               ),
@@ -169,7 +168,8 @@ Map<String, dynamic> getCountryDataByName(String name) {
                     builder: (context) {
                       return AlertDialog(
                         title: const Text('Invalid Input'),
-                        content: const Text('Please enter a valid country name.'),
+                        content:
+                            const Text('Please enter a valid country name.'),
                         actions: <Widget>[
                           TextButton(
                             onPressed: () {
