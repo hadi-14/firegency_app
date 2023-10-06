@@ -25,15 +25,15 @@ class _InteractiveMapState extends State<InteractiveMap> {
   String apiKey = "ed115b05d57d59b2d98a5c03e40f5ca3";
   String countrycode = "";
   String url = "";
-  String dataDate = (DateTime.now()).toString().split(' ')[0];
   // Fetch and parse MODIS data
+  String dataDate = (DateTime.now()).toString().split(' ')[0];
   // ignore: body_might_complete_normally_nullable
   Future<List<List<dynamic>>?> fetchModisData() async {
     DateTime date = widget.selectedDate;
-    String previousDate = (date.subtract(const Duration(days: 1)))
-        .toString()
-        .split(' ')[0];
 
+    dataDate = date.toString().split(' ')[0];
+    String previousDate =
+        (date.subtract(const Duration(days: 1))).toString().split(' ')[0];
 
     String apiUrlToday =
         'https://firms.modaps.eosdis.nasa.gov/api/country/csv/$apiKey/VIIRS_SNPP_NRT/$countrycode/1/$date';
