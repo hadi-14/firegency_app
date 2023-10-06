@@ -1,3 +1,6 @@
+import 'dart:convert';
+
+import 'package:flutter/services.dart';
 import 'package:flutter_map/plugin_api.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -25,6 +28,7 @@ class _InteractiveMapState extends State<InteractiveMap> {
   String apiKey = "ed115b05d57d59b2d98a5c03e40f5ca3";
   String countrycode = "";
   String url = "";
+  Future<List<String>>? randomFacts;
   // Fetch and parse MODIS data
   String dataDate = (DateTime.now()).toString().split(' ')[0];
   // ignore: body_might_complete_normally_nullable
@@ -70,25 +74,11 @@ class _InteractiveMapState extends State<InteractiveMap> {
     }
   }
 
-  Future<String?> fetchExtentForCountry(String countryCode) async {
-    final response = await http
-        .get(Uri.parse('https://firms.modaps.eosdis.nasa.gov/api/countries/'));
-
-    if (response.statusCode == 200) {
-      // print(response.body);
-      final csvData = const CsvToListConverter()
-          .convert(response.body, eol: "\n", textDelimiter: ";");
-
-      for (final row in csvData) {
-        final abreviation = row[1] as String;
-        final extent = row[3] as String;
-        if (abreviation == countryCode) {
-          return extent;
-        }
-      }
-    }
-
-    return null; // Return null if data fetching or parsing fails
+  Future<List<String>> loadInfo() async {
+    final String countriesData =
+        await rootBundle.loadString('assets/info.json');
+    final List<dynamic> jsonCountries = json.decode(countriesData);
+    return jsonCountries.cast<String>();
   }
 
   @override
@@ -97,6 +87,7 @@ class _InteractiveMapState extends State<InteractiveMap> {
 
     countrycode = widget.selectedLocation['code'];
     modisData = fetchModisData();
+    randomFacts = loadInfo();
   }
 
   @override
@@ -137,8 +128,8 @@ class _InteractiveMapState extends State<InteractiveMap> {
                     if (lat is double && lon is double) {
                       markers.add(
                         Marker(
-                          width: 40.0,
-                          height: 40.0,
+                          width: 30.0,
+                          height: 30.0,
                           point: LatLng(lat, lon),
                           builder: (ctx) => const Icon(
                             Icons.local_fire_department_sharp,
