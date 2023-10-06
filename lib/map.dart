@@ -9,8 +9,11 @@ class InteractiveMap extends StatefulWidget {
   final Map<String, dynamic>
       selectedLocation; // Declare the selectedLocation field
 
+  DateTime selectedDate;
+
   // Constructor to receive the selectedLocation value
-  const InteractiveMap({required this.selectedLocation, Key? key})
+  InteractiveMap(
+      {required this.selectedLocation, required this.selectedDate, Key? key})
       : super(key: key);
 
   @override
@@ -26,12 +29,14 @@ class _InteractiveMapState extends State<InteractiveMap> {
   // Fetch and parse MODIS data
   // ignore: body_might_complete_normally_nullable
   Future<List<List<dynamic>>?> fetchModisData() async {
-    String previousDate = (DateTime.now().subtract(const Duration(days: 1)))
+    DateTime date = widget.selectedDate;
+    String previousDate = (date.subtract(const Duration(days: 1)))
         .toString()
         .split(' ')[0];
 
+
     String apiUrlToday =
-        'https://firms.modaps.eosdis.nasa.gov/api/country/csv/$apiKey/VIIRS_SNPP_NRT/$countrycode/1/';
+        'https://firms.modaps.eosdis.nasa.gov/api/country/csv/$apiKey/VIIRS_SNPP_NRT/$countrycode/1/$date';
     String apiUrlYesterday =
         'https://firms.modaps.eosdis.nasa.gov/api/country/csv/$apiKey/VIIRS_SNPP_NRT/$countrycode/1/$previousDate';
 
@@ -99,10 +104,15 @@ class _InteractiveMapState extends State<InteractiveMap> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Firegency'),
-        leading: Image.asset(
-          'assets/logo.png',
-          width: 3,
-          height: 3,
+        leading: GestureDetector(
+          onTap: () {
+            Navigator.pop(context); // Navigate back to the main page
+          },
+          child: Image.asset(
+            'assets/logo.png',
+            width: 30,
+            height: 30,
+          ),
         ),
       ),
       body: Stack(

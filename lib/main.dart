@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'map.dart';
 import 'sidebar.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 void main() {
   runApp(const FiregencyApp());
@@ -64,14 +65,29 @@ class _LocationScreenState extends State<LocationScreen> {
   TextEditingController inputController =
       TextEditingController(); // Controller for the user's input
   List<String> suggestions = []; // List to store autocomplete suggestions
-
   List<Map<String, dynamic>> countries = [];
+  DateTime selectedDate = DateTime.now();
 
   Future<List<Map<String, dynamic>>> loadCountries() async {
     final String countriesData =
         await rootBundle.loadString('assets/countries.json');
     final List<dynamic> jsonCountries = json.decode(countriesData);
     return jsonCountries.cast<Map<String, dynamic>>();
+  }
+
+  Future<void> _selectDate(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: selectedDate,
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2101),
+    );
+
+    if (picked != null && picked != selectedDate) {
+      setState(() {
+        selectedDate = picked;
+      });
+    }
   }
 
   Map<String, dynamic> getCountryDataByName(String name) {
@@ -98,14 +114,14 @@ class _LocationScreenState extends State<LocationScreen> {
             countryNames.add(country['name'] as String);
           }
         }
-
-        // print(countryNames);
       });
     });
   }
 
   @override
   Widget build(BuildContext context) {
+    final formattedDate = DateFormat('dd/MM/yyyy').format(selectedDate);
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Firegency'),
@@ -119,15 +135,17 @@ class _LocationScreenState extends State<LocationScreen> {
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
             const Text(
               'Enter your Country:',
               style: TextStyle(fontSize: 18),
+              textAlign: TextAlign.center,
             ),
             const SizedBox(height: 20),
-            Padding(
+            Container(
               padding: const EdgeInsets.symmetric(horizontal: 30),
-              child: textField = AutoCompleteTextField<String>(
+              child: AutoCompleteTextField<String>(
                 key: key,
                 suggestions: countryNames,
                 decoration: const InputDecoration(
@@ -150,40 +168,61 @@ class _LocationScreenState extends State<LocationScreen> {
                 },
               ),
             ),
-            ElevatedButton(
-              onPressed: () {
-                // selectedLocation = getCountryDataByName(selectedCountry);
-                if (selectedLocation.isNotEmpty) {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) =>
-                          InteractiveMap(selectedLocation: selectedLocation),
-                    ),
-                  );
-                } else {
-                  // Handle invalid input or show an error message
-                  showDialog(
-                    context: context,
-                    builder: (context) {
-                      return AlertDialog(
-                        title: const Text('Invalid Input'),
-                        content:
-                            const Text('Please enter a valid country name.'),
-                        actions: <Widget>[
-                          TextButton(
-                            onPressed: () {
-                              Navigator.of(context).pop();
-                            },
-                            child: const Text('OK'),
-                          ),
-                        ],
-                      );
-                    },
-                  );
-                }
-              },
-              child: const Text('Next'),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 30),
+              child: GestureDetector(
+                onTap: () => _selectDate(context), // Open date picker on tap
+                child: InputDecorator(
+                  decoration: const InputDecoration(
+                    hintText: 'Select a Date', // Show hint text
+                  ),
+                  child: Text(
+                    formattedDate, // Display selected date
+                    style: const TextStyle(fontSize: 18),
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 20),
+            const SizedBox(height: 20), // Add spacing between input and button
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 30),
+              child: ElevatedButton(
+                onPressed: () {
+                  if (selectedLocation.isNotEmpty) {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            InteractiveMap(selectedLocation: selectedLocation, selectedDate: selectedDate),
+                      ),
+                    );
+                  } else {
+                    showDialog(
+                      context: context,
+                      builder: (context) {
+                        return AlertDialog(
+                          title: const Text('Invalid Input'),
+                          content:
+                              const Text('Please enter a valid country name.'),
+                          actions: <Widget>[
+                            TextButton(
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                              },
+                              child: const Text('OK'),
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                  }
+                },
+                child: const Text(
+                  'Next',
+                  style: TextStyle(fontSize: 18), // Adjust button text size
+                ),
+              ),
             ),
           ],
         ),
