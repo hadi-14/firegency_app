@@ -28,7 +28,11 @@ class _InteractiveMapState extends State<InteractiveMap> {
   String apiKey = "ed115b05d57d59b2d98a5c03e40f5ca3";
   String countrycode = "";
   String url = "";
+<<<<<<< HEAD
   Future<List<String>>? randomFacts;
+=======
+  List<String> randomFacts = [];
+>>>>>>> b9f410545971539f9f9220e177343a95312e8951
   // Fetch and parse MODIS data
   String dataDate = (DateTime.now()).toString().split(' ')[0];
   // ignore: body_might_complete_normally_nullable
@@ -85,9 +89,21 @@ class _InteractiveMapState extends State<InteractiveMap> {
   void initState() {
     super.initState();
 
+<<<<<<< HEAD
     countrycode = widget.selectedLocation['code'];
     modisData = fetchModisData();
     randomFacts = loadInfo();
+=======
+    loadInfo().then((fireinfo) {
+      setState(() {
+        randomFacts = fireinfo;
+        randomFacts.shuffle();
+
+      });
+    });
+      countrycode = widget.selectedLocation['code'];
+      modisData = fetchModisData();
+>>>>>>> b9f410545971539f9f9220e177343a95312e8951
   }
 
   @override
