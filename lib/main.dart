@@ -193,8 +193,9 @@ class _LocationScreenState extends State<LocationScreen> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) =>
-                            InteractiveMap(selectedLocation: selectedLocation, selectedDate: selectedDate),
+                        builder: (context) => InteractiveMap(
+                            selectedLocation: selectedLocation,
+                            selectedDate: selectedDate),
                       ),
                     );
                   } else {
@@ -224,6 +225,44 @@ class _LocationScreenState extends State<LocationScreen> {
                 ),
               ),
             ),
+            const SizedBox(height: 20),
+
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 30),
+              child: RichText(
+                  text: const TextSpan(
+                children: [
+                  TextSpan(
+                    text: 'Dont forget to click ',
+                    style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.grey),
+                  ),
+                  WidgetSpan(
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(
+                          horizontal: 4.0), // Adjust padding as needed
+                      child: Icon(
+                        Icons.info_rounded,
+                        size:
+                            20, // You can adjust the size of the icon as needed
+                        color: Color.fromARGB(255, 0, 225,
+                            8), // You can change the color of the icon
+                      ),
+                    ),
+                  ),
+                  TextSpan(
+                    text:
+                        ' icon to see fun facts and more info regarding fires',
+                    style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.grey),
+                  ),
+                ],
+              )),
+            )
           ],
         ),
       ),
