@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'package:autocomplete_textfield/autocomplete_textfield.dart';
 import 'package:flutter/services.dart';
 import 'map.dart';
-import 'sidebar.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -13,7 +12,7 @@ void main() {
 class FiregencyApp extends StatelessWidget {
   const FiregencyApp({super.key});
   final customPrimaryColor = const MaterialColor(
-    0xFFFF5A00, // Replace with your desired color code
+    0xFFFF5A00,
     <int, Color>{
       50: Color(0xFFFF5A00),
       100: Color(0xFFFF5A00),
@@ -61,10 +60,9 @@ class _LocationScreenState extends State<LocationScreen> {
   late AutoCompleteTextField<String> textField;
   GlobalKey<AutoCompleteTextFieldState<String>> key = GlobalKey();
   Map<String, dynamic> selectedLocation = {};
-  // String selectedCountry = "e.g. Pakistan";
   TextEditingController inputController =
-      TextEditingController(); // Controller for the user's input
-  List<String> suggestions = []; // List to store autocomplete suggestions
+      TextEditingController();
+  List<String> suggestions = [];
   List<Map<String, dynamic>> countries = [];
   DateTime selectedDate = DateTime.now();
 
@@ -80,7 +78,7 @@ class _LocationScreenState extends State<LocationScreen> {
       context: context,
       initialDate: selectedDate,
       firstDate: DateTime(2000),
-      lastDate: DateTime(2101),
+      lastDate: DateTime.now(),
     );
 
     if (picked != null && picked != selectedDate) {
@@ -98,7 +96,6 @@ class _LocationScreenState extends State<LocationScreen> {
     return countryData;
   }
 
-  // Sample list of locations (you can replace this with your data source)
   List<Map<String, dynamic>> locations = [];
   List<String> countryNames = [];
 
@@ -108,7 +105,6 @@ class _LocationScreenState extends State<LocationScreen> {
     loadCountries().then((loadedCountries) {
       setState(() {
         locations = loadedCountries;
-        // countryNames = countries.map<String>((country) => country['name'] as String).toList();
         for (var country in locations) {
           if (country.containsKey('name')) {
             countryNames.add(country['name'] as String);
@@ -126,12 +122,11 @@ class _LocationScreenState extends State<LocationScreen> {
       appBar: AppBar(
         title: const Text('Firegency'),
         leading: Image.asset(
-          'assets/logo.png', // Replace with your custom image path
-          width: 3, // Adjust the width as needed
-          height: 3, // Adjust the height as needed
+          'assets/logo.png',
+          width: 3,
+          height: 3,
         ),
       ),
-      drawer: const Sidebar(),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -171,20 +166,20 @@ class _LocationScreenState extends State<LocationScreen> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 30),
               child: GestureDetector(
-                onTap: () => _selectDate(context), // Open date picker on tap
+                onTap: () => _selectDate(context),
                 child: InputDecorator(
                   decoration: const InputDecoration(
-                    hintText: 'Select a Date', // Show hint text
+                    hintText: 'Select a Date',
                   ),
                   child: Text(
-                    formattedDate, // Display selected date
+                    formattedDate,
                     style: const TextStyle(fontSize: 18),
                   ),
                 ),
               ),
             ),
             const SizedBox(height: 20),
-            const SizedBox(height: 20), // Add spacing between input and button
+            const SizedBox(height: 20),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 30),
               child: ElevatedButton(
@@ -221,7 +216,7 @@ class _LocationScreenState extends State<LocationScreen> {
                 },
                 child: const Text(
                   'Next',
-                  style: TextStyle(fontSize: 18), // Adjust button text size
+                  style: TextStyle(fontSize: 18),
                 ),
               ),
             ),
@@ -242,13 +237,11 @@ class _LocationScreenState extends State<LocationScreen> {
                   WidgetSpan(
                     child: Padding(
                       padding: EdgeInsets.symmetric(
-                          horizontal: 4.0), // Adjust padding as needed
+                          horizontal: 4.0),
                       child: Icon(
                         Icons.info_rounded,
-                        size:
-                            20, // You can adjust the size of the icon as needed
-                        color: Color.fromARGB(255, 0, 225,
-                            8), // You can change the color of the icon
+                        size:20,
+                        color: Color.fromARGB(255, 0, 225, 8),
                       ),
                     ),
                   ),

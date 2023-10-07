@@ -33,11 +33,10 @@ class InteractiveMap extends StatefulWidget {
 }
 
 class _InteractiveMapState extends State<InteractiveMap> {
-  Future<List<List<dynamic>>?>? modisData; // Store MODIS data here
+  Future<List<List<dynamic>>?>? modisData;
   String apiKey = "ed115b05d57d59b2d98a5c03e40f5ca3";
   String countrycode = "";
   String url = "";
-  // Map<String, List<String>?> randomFacts = {};
   List<Marker> randomMarkers = [];
   bool isBlinking = true; // Add a bool variable for blinking animation
   int selectedMarkerIndex = -1; // To track the selected marker
@@ -45,18 +44,13 @@ class _InteractiveMapState extends State<InteractiveMap> {
 
   // Fetch and parse MODIS data
   String dataDate = (DateTime.now()).toString().split(' ')[0];
-  // ignore: body_might_complete_normally_nullable
   Future<List<List<dynamic>>?> fetchModisData() async {
     DateTime date = widget.selectedDate;
 
     dataDate = date.toString().split(' ')[0];
-    String previousDate =
-        (date.subtract(const Duration(days: 1))).toString().split(' ')[0];
 
     String apiUrlToday =
-        'https://firms.modaps.eosdis.nasa.gov/api/country/csv/$apiKey/VIIRS_SNPP_NRT/$countrycode/1/$date';
-    String apiUrlYesterday =
-        'https://firms.modaps.eosdis.nasa.gov/api/country/csv/$apiKey/VIIRS_SNPP_NRT/$countrycode/1/$previousDate';
+        'https://firms.modaps.eosdis.nasa.gov/api/country/csv/$apiKey/VIIRS_SNPP_NRT/$countrycode/1/$dataDate';
 
     final responseToday = await http.get(Uri.parse(
       apiUrlToday,
@@ -66,24 +60,7 @@ class _InteractiveMapState extends State<InteractiveMap> {
       final csvData =
           const CsvToListConverter().convert(responseToday.body, eol: "\n");
       csvData.removeAt(0);
-
-      if (csvData.isEmpty) {
-        // If today's data is not available, try fetching data from yesterday
-        final responseYesterday = await http.get(Uri.parse(
-          apiUrlYesterday,
-        ));
-
-        dataDate = previousDate;
-
-        if (responseYesterday.statusCode == 200) {
-          final csvData = const CsvToListConverter()
-              .convert(responseYesterday.body, eol: "\n");
-          csvData.removeAt(0);
-          return csvData;
-        } else {
-          throw Exception('Failed to fetch MODIS data');
-        }
-      }
+      print(csvData);
       return csvData;
     }
   }
@@ -98,9 +75,6 @@ class _InteractiveMapState extends State<InteractiveMap> {
       final List<String> facts = List<String>.from(value)..shuffle();
       categories[key] = facts;
     });
-    // print("Data:  $data");
-    // print("Categories:  $categories");
-
     return categories;
   }
 
@@ -123,7 +97,6 @@ class _InteractiveMapState extends State<InteractiveMap> {
 
       String category = "";
       String? text = "";
-      print(randomFacts);
 
       switch (randomCategory) {
         case 0:
@@ -176,6 +149,12 @@ class _InteractiveMapState extends State<InteractiveMap> {
     const Duration blinkDuration = Duration(milliseconds: 750); // 0.75 seconds
 
     blinkTimer = Timer.periodic(blinkDuration, (timer) {
+      if (!mounted) {
+        // Check if the state is still mounted before updating the UI
+        timer.cancel(); // Cancel the timer if the state is no longer mounted
+        return;
+      }
+
       setState(() {
         isBlinking = !isBlinking; // Toggle the blinking state
       });
@@ -244,7 +223,7 @@ class _InteractiveMapState extends State<InteractiveMap> {
               } else if (snapshot.hasError) {
                 return Center(child: Text('Error: ${snapshot.error}'));
               } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                return const Center(child: Text('No MODIS data available'));
+                return const Center(child: Text('No data available'));
               } else {
                 final modisData = snapshot.data!;
                 final markers = <Marker>[];
@@ -261,8 +240,7 @@ class _InteractiveMapState extends State<InteractiveMap> {
                           point: LatLng(lat, lon),
                           builder: (ctx) => const Icon(
                             Icons.local_fire_department_sharp,
-                            color: Color(
-                                0xFFFF5A00), // You can customize the marker icon
+                            color: Color(0xFFFF5A00),
                           ),
                         ),
                       );
@@ -271,8 +249,7 @@ class _InteractiveMapState extends State<InteractiveMap> {
                 } // Logic to create markers from modisData
 
                 if (markers.isEmpty) {
-                  return const Center(
-                      child: Text('No valid MODIS data available'));
+                  return const Center(child: Text('No valid data available'));
                 } else {
                   return FlutterMap(
                     options: MapOptions(
