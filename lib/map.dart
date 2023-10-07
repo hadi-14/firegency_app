@@ -30,19 +30,12 @@ class _InteractiveMapState extends State<InteractiveMap> {
   String apiKey = "ed115b05d57d59b2d98a5c03e40f5ca3";
   String countrycode = "";
   String url = "";
-<<<<<<< HEAD
-  Future<List<String>>? randomFacts;
-=======
   List<String> randomFacts = [];
-<<<<<<< HEAD
->>>>>>> b9f410545971539f9f9220e177343a95312e8951git
-=======
   List<Marker> randomMarkers = [];
   bool isBlinking = true; // Add a bool variable for blinking animation
   int selectedMarkerIndex = -1; // To track the selected marker
   late Timer blinkTimer;
 
->>>>>>> 8420d15f720af0e82d7f2855eafe17a8a0b50e3b
   // Fetch and parse MODIS data
   String dataDate = (DateTime.now()).toString().split(' ')[0];
   // ignore: body_might_complete_normally_nullable
@@ -95,95 +88,78 @@ class _InteractiveMapState extends State<InteractiveMap> {
     return jsonCountries.cast<String>();
   }
 
-void generateRandomMarkers() {
-  LatLngBounds mapBounds = LatLngBounds(
-    const LatLng(-90, -180),
-    const LatLng(90, 180),
-  );
+  void generateRandomMarkers() {
+    LatLngBounds mapBounds = LatLngBounds(
+      const LatLng(-90, -180),
+      const LatLng(90, 180),
+    );
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-    countrycode = widget.selectedLocation['code'];
-    modisData = fetchModisData();
-    randomFacts = loadInfo();
-=======
+    // Generate a specified number of random markers
+    for (int i = 0; i < 50; i++) {
+      double randomLat =
+          Random().nextDouble() * (mapBounds.north - mapBounds.south) +
+              mapBounds.south;
+      double randomLng =
+          Random().nextDouble() * (mapBounds.east - mapBounds.west) +
+              mapBounds.west;
+
+      // Create a marker with a unique key to distinguish it from other markers
+      Marker randomMarker = Marker(
+        width: 30.0,
+        height: 30.0,
+        point: LatLng(randomLat, randomLng),
+        builder: (ctx) => GestureDetector(
+          onTap: () {
+            // Handle marker tap if needed
+          },
+          child: AnimatedContainer(
+            duration: Duration(milliseconds: 500),
+            curve: Curves.easeInOut,
+            // decoration: BoxDecoration(
+            //   color: isBlinking ? Colors.yellow : Colors.transparent,
+            //   shape: BoxShape.circle, // Make the container circular
+            // ),
+            child: Icon(
+              Icons.info_rounded,
+              color: isBlinking
+                  ? Color.fromARGB(255, 3, 84, 14)
+                  : Color.fromARGB(255, 0, 255, 8),
+            ),
+          ),
+        ),
+      );
+
+      setState(() {
+        randomMarkers.add(randomMarker);
+      });
+    }
+  }
+
+  void startBlinkingAnimation() {
+    const Duration blinkDuration = Duration(milliseconds: 750); // 0.75 seconds
+
+    blinkTimer = Timer.periodic(blinkDuration, (timer) {
+      setState(() {
+        isBlinking = !isBlinking; // Toggle the blinking state
+      });
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
     loadInfo().then((fireinfo) {
       setState(() {
         randomFacts = fireinfo;
         randomFacts.shuffle();
-=======
-  // Generate a specified number of random markers
-  for (int i = 0; i < 50; i++) {
-    double randomLat =
-        Random().nextDouble() * (mapBounds.north - mapBounds.south) +
-            mapBounds.south;
-    double randomLng =
-        Random().nextDouble() * (mapBounds.east - mapBounds.west) +
-            mapBounds.west;
->>>>>>> 8420d15f720af0e82d7f2855eafe17a8a0b50e3b
-
-    // Create a marker with a unique key to distinguish it from other markers
-    Marker randomMarker = Marker(
-      width: 30.0,
-      height: 30.0,
-      point: LatLng(randomLat, randomLng),
-      builder: (ctx) => GestureDetector(
-        onTap: () {
-          // Handle marker tap if needed
-        },
-child: AnimatedContainer(
-  duration: Duration(milliseconds: 500),
-  curve: Curves.easeInOut,
-  // decoration: BoxDecoration(
-  //   color: isBlinking ? Colors.yellow : Colors.transparent,
-  //   shape: BoxShape.circle, // Make the container circular
-  // ),
-  child: Icon(
-    Icons.info_rounded,
-    color: isBlinking ? Color.fromARGB(255, 3, 84, 14) : Color.fromARGB(255, 0, 255, 8),
-  ),
-),
-
-      ),
-    );
-
-    setState(() {
-      randomMarkers.add(randomMarker);
+      });
     });
-<<<<<<< HEAD
-      countrycode = widget.selectedLocation['code'];
-      modisData = fetchModisData();
->>>>>>> b9f410545971539f9f9220e177343a95312e8951
-=======
->>>>>>> 8420d15f720af0e82d7f2855eafe17a8a0b50e3b
+    countrycode = widget.selectedLocation['code'];
+    modisData = fetchModisData();
+    generateRandomMarkers();
+    startBlinkingAnimation(); // Start the blinking animation
   }
-}
-
-void startBlinkingAnimation() {
-  const Duration blinkDuration = Duration(milliseconds: 750); // 0.75 seconds
-
-  blinkTimer = Timer.periodic(blinkDuration, (timer) {
-    setState(() {
-      isBlinking = !isBlinking; // Toggle the blinking state
-    });
-  });
-}
-
-@override
-void initState() {
-  super.initState();
-
-  loadInfo().then((fireinfo) {
-    setState(() {
-      randomFacts = fireinfo;
-      randomFacts.shuffle();
-    });
-  });
-  countrycode = widget.selectedLocation['code'];
-  modisData = fetchModisData();
-  generateRandomMarkers();
-  startBlinkingAnimation(); // Start the blinking animation
-}
 
   @override
   Widget build(BuildContext context) {
@@ -228,7 +204,8 @@ void initState() {
                           point: LatLng(lat, lon),
                           builder: (ctx) => const Icon(
                             Icons.local_fire_department_sharp,
-                            color: Color(0xFFFF5A00), // You can customize the marker icon
+                            color: Color(
+                                0xFFFF5A00), // You can customize the marker icon
                           ),
                         ),
                       );
