@@ -10,6 +10,13 @@ import 'package:latlong2/latlong.dart'; // For LatLng
 import 'package:http/http.dart' as http;
 import 'package:csv/csv.dart';
 
+class Facts {
+  final String name;
+  final List<String> sentence;
+
+  Facts(this.name, this.sentence);
+}
+
 class InteractiveMap extends StatefulWidget {
   final Map<String, dynamic>
       selectedLocation; // Declare the selectedLocation field
@@ -30,7 +37,7 @@ class _InteractiveMapState extends State<InteractiveMap> {
   String apiKey = "ed115b05d57d59b2d98a5c03e40f5ca3";
   String countrycode = "";
   String url = "";
-  List<String> randomFacts = [];
+  // Map<String, List<String>?> randomFacts = {};
   List<Marker> randomMarkers = [];
   bool isBlinking = true; // Add a bool variable for blinking animation
   int selectedMarkerIndex = -1; // To track the selected marker
@@ -81,14 +88,23 @@ class _InteractiveMapState extends State<InteractiveMap> {
     }
   }
 
-  Future<List<String>> loadInfo() async {
-    final String countriesData =
-        await rootBundle.loadString('assets/info.json');
-    final List<dynamic> jsonCountries = json.decode(countriesData);
-    return jsonCountries.cast<String>();
+  Future<Map<String, List<String>>> loadInfo() async {
+    final jsonString = await rootBundle.loadString('assets/info.json');
+    final Map<String, dynamic> data = json.decode(jsonString);
+
+    final Map<String, List<String>> categories = {};
+
+    data.forEach((key, value) {
+      final List<String> facts = List<String>.from(value)..shuffle();
+      categories[key] = facts;
+    });
+    // print("Data:  $data");
+    // print("Categories:  $categories");
+
+    return categories;
   }
 
-  void generateRandomMarkers() {
+  void generateRandomMarkers(Map<String, List<String>> randomFacts) {
     LatLngBounds mapBounds = LatLngBounds(
       const LatLng(-90, -180),
       const LatLng(90, 180),
@@ -103,6 +119,31 @@ class _InteractiveMapState extends State<InteractiveMap> {
           Random().nextDouble() * (mapBounds.east - mapBounds.west) +
               mapBounds.west;
 
+      int randomCategory = Random().nextInt(4);
+
+      String category = "";
+      String? text = "";
+      print(randomFacts);
+
+      switch (randomCategory) {
+        case 0:
+          category = "Prevention";
+          text = randomFacts[category]?[i];
+          break;
+        case 1:
+          category = "Cause";
+          text = randomFacts[category]?[i];
+          break;
+        case 2:
+          category = "Effect";
+          text = randomFacts[category]?[i];
+          break;
+        case 3:
+          category = "Types";
+          text = randomFacts[category]?[i];
+          break;
+      }
+
       // Create a marker with a unique key to distinguish it from other markers
       Marker randomMarker = Marker(
         width: 30.0,
@@ -110,20 +151,16 @@ class _InteractiveMapState extends State<InteractiveMap> {
         point: LatLng(randomLat, randomLng),
         builder: (ctx) => GestureDetector(
           onTap: () {
-            // Handle marker tap if needed
+            _showFactListDialog(context, category, text as String);
           },
           child: AnimatedContainer(
-            duration: Duration(milliseconds: 500),
+            duration: const Duration(milliseconds: 500),
             curve: Curves.easeInOut,
-            // decoration: BoxDecoration(
-            //   color: isBlinking ? Colors.yellow : Colors.transparent,
-            //   shape: BoxShape.circle, // Make the container circular
-            // ),
             child: Icon(
               Icons.info_rounded,
               color: isBlinking
-                  ? Color.fromARGB(255, 3, 84, 14)
-                  : Color.fromARGB(255, 0, 255, 8),
+                  ? const Color.fromARGB(255, 0, 84, 14)
+                  : const Color.fromARGB(255, 0, 255, 8),
             ),
           ),
         ),
@@ -151,14 +188,34 @@ class _InteractiveMapState extends State<InteractiveMap> {
 
     loadInfo().then((fireinfo) {
       setState(() {
-        randomFacts = fireinfo;
-        randomFacts.shuffle();
+        generateRandomMarkers(fireinfo);
       });
     });
     countrycode = widget.selectedLocation['code'];
     modisData = fetchModisData();
-    generateRandomMarkers();
     startBlinkingAnimation(); // Start the blinking animation
+  }
+
+  void _showFactListDialog(BuildContext context, String category, String fact) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(category),
+          content: SizedBox(
+            child: Text(fact),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: const Text("Close"),
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -229,7 +286,7 @@ class _InteractiveMapState extends State<InteractiveMap> {
                       TileLayer(
                         urlTemplate:
                             'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
-                        subdomains: ['a', 'b', 'c', 'd'],
+                        subdomains: const ['a', 'b', 'c', 'd'],
                       ),
                       MarkerLayer(
                         markers: markers + randomMarkers, // Add random markers
@@ -255,7 +312,7 @@ class _InteractiveMapState extends State<InteractiveMap> {
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: Color.fromARGB(255, 0, 0, 0).withOpacity(0.5),
+                    color: const Color.fromARGB(255, 0, 0, 0).withOpacity(0.5),
                     spreadRadius: 5,
                     blurRadius: 7,
                     offset: const Offset(0, 3),

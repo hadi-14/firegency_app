@@ -12,6 +12,7 @@ void main() {
 
 class FiregencyApp extends StatelessWidget {
   const FiregencyApp({super.key});
+
   final customPrimaryColor = const MaterialColor(
     0xFFFF5A00, // Replace with your desired color code
     <int, Color>{
@@ -33,11 +34,13 @@ class FiregencyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Firegency',
       theme: ThemeData(
-          colorScheme: ColorScheme.fromSwatch(
-              primarySwatch: customPrimaryColor,
-              cardColor: const Color(0xFFFF5A00),
-              backgroundColor: Colors.red,
-              brightness: Brightness.dark)),
+        colorScheme: ColorScheme.fromSwatch(
+          primarySwatch: customPrimaryColor,
+          cardColor: const Color(0xFFFF5A00),
+          backgroundColor: Colors.red,
+          brightness: Brightness.dark,
+        ),
+      ),
       home: const LocationScreen(),
     );
   }
@@ -50,18 +53,10 @@ class LocationScreen extends StatefulWidget {
   _LocationScreenState createState() => _LocationScreenState();
 }
 
-class CountriesData {
-  final String name;
-  final List<double> apis;
-
-  CountriesData(this.name, this.apis);
-}
-
 class _LocationScreenState extends State<LocationScreen> {
   late AutoCompleteTextField<String> textField;
   GlobalKey<AutoCompleteTextFieldState<String>> key = GlobalKey();
   Map<String, dynamic> selectedLocation = {};
-  // String selectedCountry = "e.g. Pakistan";
   TextEditingController inputController =
       TextEditingController(); // Controller for the user's input
   List<String> suggestions = []; // List to store autocomplete suggestions
@@ -91,15 +86,13 @@ class _LocationScreenState extends State<LocationScreen> {
   }
 
   Map<String, dynamic> getCountryDataByName(String name) {
-    final countryData = locations.firstWhere(
+    final countryData = countries.firstWhere(
       (country) => country['name'].toLowerCase() == name.toLowerCase(),
       orElse: () => {},
     );
     return countryData;
   }
 
-  // Sample list of locations (you can replace this with your data source)
-  List<Map<String, dynamic>> locations = [];
   List<String> countryNames = [];
 
   @override
@@ -107,9 +100,8 @@ class _LocationScreenState extends State<LocationScreen> {
     super.initState();
     loadCountries().then((loadedCountries) {
       setState(() {
-        locations = loadedCountries;
-        // countryNames = countries.map<String>((country) => country['name'] as String).toList();
-        for (var country in locations) {
+        countries = loadedCountries;
+        for (var country in countries) {
           if (country.containsKey('name')) {
             countryNames.add(country['name'] as String);
           }
@@ -184,44 +176,83 @@ class _LocationScreenState extends State<LocationScreen> {
               ),
             ),
             const SizedBox(height: 20),
-            const SizedBox(height: 20), // Add spacing between input and button
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 30),
-              child: ElevatedButton(
-                onPressed: () {
-                  if (selectedLocation.isNotEmpty) {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) =>
-                            InteractiveMap(selectedLocation: selectedLocation, selectedDate: selectedDate),
-                      ),
-                    );
-                  } else {
-                    showDialog(
-                      context: context,
-                      builder: (context) {
-                        return AlertDialog(
-                          title: const Text('Invalid Input'),
-                          content:
-                              const Text('Please enter a valid country name.'),
-                          actions: <Widget>[
-                            TextButton(
-                              onPressed: () {
-                                Navigator.of(context).pop();
-                              },
-                              child: const Text('OK'),
-                            ),
-                          ],
+              child: Column(
+                children: <Widget>[
+                  ElevatedButton(
+                    onPressed: () {
+                      if (selectedLocation.isNotEmpty) {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => InteractiveMap(
+                                selectedLocation: selectedLocation,
+                                selectedDate: selectedDate),
+                          ),
                         );
-                      },
-                    );
-                  }
-                },
-                child: const Text(
-                  'Next',
-                  style: TextStyle(fontSize: 18), // Adjust button text size
-                ),
+                      } else {
+                        showDialog(
+                          context: context,
+                          builder: (context) {
+                            return AlertDialog(
+                              title: const Text('Invalid Input'),
+                              content: const Text(
+                                  'Please enter a valid country name.'),
+                              actions: <Widget>[
+                                TextButton(
+                                  onPressed: () {
+                                    Navigator.of(context).pop();
+                                  },
+                                  child: const Text('OK'),
+                                ),
+                              ],
+                            );
+                          },
+                        );
+                        const SizedBox(height: 50);
+                      }
+                    },
+                    child: const Text(
+                      'Next',
+                      style: TextStyle(fontSize: 18),
+                    ),
+                  ),
+                  RichText(
+                    text: const TextSpan(
+                      children: [
+                        TextSpan(
+                          text: 'Dont forget to click ',
+                          style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.grey),
+                        ),
+                        WidgetSpan(
+                          child: Padding(
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 4.0), // Adjust padding as needed
+                            child: Icon(
+                              Icons.info_rounded,
+                              size:
+                                  20, // You can adjust the size of the icon as needed
+                              color: Color.fromARGB(255, 0, 225,
+                                  8), // You can change the color of the icon
+                            ),
+                          ),
+                        ),
+                        TextSpan(
+                          text:
+                              ' icon to see fun facts and more info regarding fires',
+                          style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.grey),
+                        ),
+                      ],
+                    ),
+                  )
+                ],
               ),
             ),
           ],
