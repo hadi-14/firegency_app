@@ -32,7 +32,7 @@ class _InteractiveMapState extends State<InteractiveMap> {
   Future<List<String>>? randomFacts;
 =======
   List<String> randomFacts = [];
->>>>>>> b9f410545971539f9f9220e177343a95312e8951
+>>>>>>> b9f410545971539f9f9220e177343a95312e8951git
   // Fetch and parse MODIS data
   String dataDate = (DateTime.now()).toString().split(' ')[0];
   // ignore: body_might_complete_normally_nullable
