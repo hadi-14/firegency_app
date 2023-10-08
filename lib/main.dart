@@ -1,7 +1,9 @@
+import 'dart:convert';
 import 'package:autocomplete_textfield/autocomplete_textfield.dart';
+import 'package:flutter/services.dart';
 import 'map.dart';
-import 'sidebar.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 void main() {
   runApp(const FiregencyApp());
@@ -10,7 +12,7 @@ void main() {
 class FiregencyApp extends StatelessWidget {
   const FiregencyApp({super.key});
   final customPrimaryColor = const MaterialColor(
-    0xFFFF5A00, // Replace with your desired color code
+    0xFFFF5A00,
     <int, Color>{
       50: Color(0xFFFF5A00),
       100: Color(0xFFFF5A00),
@@ -21,7 +23,7 @@ class FiregencyApp extends StatelessWidget {
       600: Color(0xFFFF5A00),
       700: Color(0xFFFF5A00),
       800: Color(0xFFFF5A00),
-      900: Color(git),
+      900: Color(0xFFFF5A00),
     },
   );
 
@@ -32,7 +34,7 @@ class FiregencyApp extends StatelessWidget {
       theme: ThemeData(
           colorScheme: ColorScheme.fromSwatch(
               primarySwatch: customPrimaryColor,
-              cardColor: Color(0xFFFF5A00),
+              cardColor: const Color(0xFFFF5A00),
               backgroundColor: Colors.red,
               brightness: Brightness.dark)),
       home: const LocationScreen(),
@@ -47,294 +49,105 @@ class LocationScreen extends StatefulWidget {
   _LocationScreenState createState() => _LocationScreenState();
 }
 
+class CountriesData {
+  final String name;
+  final List<double> apis;
+
+  CountriesData(this.name, this.apis);
+}
+
 class _LocationScreenState extends State<LocationScreen> {
   late AutoCompleteTextField<String> textField;
   GlobalKey<AutoCompleteTextFieldState<String>> key = GlobalKey();
-  String selectedLocation = '';
+  Map<String, dynamic> selectedLocation = {};
+  TextEditingController inputController =
+      TextEditingController();
+  List<String> suggestions = [];
+  List<Map<String, dynamic>> countries = [];
+  DateTime selectedDate = DateTime.now();
 
-  // Sample list of locations (you can replace this with your data source)
-  List<String> locations = [
-    'Aruba, ABW',
-    'Afghanistan, AFG',
-    'Angola, AGO',
-    'Anguilla, AIA',
-    'Aland Islands, ALA',
-    'Albania, ALB',
-    'Andorra, AND',
-    'United Arab Emirates, ARE',
-    'Argentina, ARG',
-    'Armenia, ARM',
-    'American Samoa, ASM',
-    'Antarctica, ATA',
-    'French Southern and Antarctic Lands, ATF',
-    'Antigua and Barbuda, ATG',
-    'Australia, AUS',
-    'Austria, AUT',
-    'Azerbaijan, AZE',
-    'Burundi, BDI',
-    'Belgium, BEL',
-    'Benin, BEN',
-    'Burkina Faso, BFA',
-    'Bangladesh, BGD',
-    'Bulgaria, BGR',
-    'Bahrain, BHR',
-    'Bahamas, BHS',
-    'Bosnia and Herzegovina, BIH',
-    'Saint-Barthelemy, BLM',
-<<<<<<< HEAD
-    //'Belarus, BLR',
-=======
-    'Belarus, BLR',
->>>>>>> 116be9eca83e788fde99ef7aabdc197fba5bdcca
-    'Belize, BLZ',
-    'Bermuda, BMU',
-    'Bolivia, BOL',
-    'Brazil, BRA',
-    'Barbados, BRB',
-    'Brunei Darussalam, BRN',
-    'Bhutan, BTN',
-    'Botswana, BWA',
-    'Central African Republic, CAF',
-    'Canada, CAN',
-    'Switzerland, CHE',
-    'Chile, CHL',
-    'China, CHN',
-    "Cote d'Ivoire, CIV",
-    'Cameroon, CMR',
-    'Democratic Republic of the Congo, COD',
-    'Republic of Congo, COG',
-    'Cook Islands, COK',
-    'Colombia, COL',
-    'Comoros, COM',
-    'Cape Verde, CPV',
-    'Costa Rica, CRI',
-    'Cuba, CUB',
-    'Curacao, CUW',
-    'Cayman Islands, CYM',
-    'Cyprus, CYP',
-    'Czech Republic, CZE',
-    'Germany, DEU',
-    'Djibouti, DJI',
-    'Dominica, DMA',
-    'Denmark, DNK',
-    'Dominican Republic, DOM',
-    'Algeria, DZA',
-    'Ecuador, ECU',
-    'Egypt, EGY',
-    'Eritrea, ERI',
-    'Spain, ESP',
-    'Estonia, EST',
-    'Ethiopia, ETH',
-    'Finland, FIN',
-    'Fiji, FJI',
-    'Falkland Islands, FLK',
-    'France, FRA',
-    'Faeroe Islands, FRO',
-    'Federated States of Micronesia, FSM',
-    'Gabon, GAB',
-    'United Kingdom, GBR',
-    'Georgia, GEO',
-    'Guernsey, GGY',
-    'Ghana, GHA',
-    'Gibraltar, GIB',
-    'Guinea, GIN',
-    'Guadeloupe, GLP',
-    'The Gambia, GMB',
-    'Guinea-Bissau, GNB',
-    'Equatorial Guinea, GNQ',
-    'Greece, GRC',
-    'Grenada, GRD',
-    'Greenland, GRL',
-    'Guatemala, GTM',
-    'French Guiana, GUF',
-    'Guam, GUM',
-    'Guyana, GUY',
-    'Hong Kong, HKG',
-    'Heard I. and McDonald Islands, HMD',
-    'Honduras, HND',
-    'Croatia, HRV',
-    'Haiti, HTI',
-    'Hungary, HUN',
-    'Indonesia, IDN',
-    'Isle of Man, IMN',
-    'India, IND',
-    'British Indian Ocean Territory, IOT',
-    'Ireland, IRL',
-    'Iran, IRN',
-    'Iraq, IRQ',
-    'Iceland, ISL',
-    'Israel, ISR',
-    'Italy, ITA',
-    'Jamaica, JAM',
-    'Jersey, JEY',
-    'Jordan, JOR',
-    'Japan, JPN',
-    'Kazakhstan, KAZ',
-    'Kenya, KEN',
-    'Kyrgyzstan, KGZ',
-    'Cambodia, KHM',
-    'Kiribati, KIR',
-    'Saint Kitts and Nevis, KNA',
-    'Republic of Korea, KOR',
-    'Kosovo, KOS',
-    'Kuwait, KWT',
-    'Lao PDR, LAO',
-    'Lebanon, LBN',
-    'Liberia, LBR',
-    'Libya, LBY',
-    'Saint Lucia, LCA',
-    'Liechtenstein, LIE',
-    'Sri Lanka, LKA',
-    'Lesotho, LSO',
-    'Lithuania, LTU',
-    'Luxembourg, LUX',
-    'Latvia, LVA',
-    'Macao, MAC',
-    'Saint-Martin, MAF',
-    'Morocco, MAR',
-    'Monaco, MCO',
-    'Moldova, MDA',
-    'Madagascar, MDG',
-    'Maldives, MDV',
-    'Mexico, MEX',
-    'Marshall Islands, MHL',
-    'Macedonia, Former Yugoslav Republic of, MKD',
-    'Mali, MLI',
-    'Malta, MLT',
-    'Myanmar, MMR',
-    'Montenegro, MNE',
-    'Mongolia, MNG',
-    'Northern Mariana Islands, MNP',
-    'Mozambique, MOZ',
-    'Mauritania, MRT',
-    'Montserrat, MSR',
-    'Martinique, MTQ',
-    'Mauritius, MUS',
-    'Malawi, MWI',
-    'Malaysia, MYS',
-    'Mayotte, MYT',
-    'Namibia, NAM',
-    'New Caledonia, NCL',
-    'Niger, NER',
-    'Norfolk Island, NFK',
-    'Nigeria, NGA',
-    'Nicaragua, NIC',
-    'Niue, NIU',
-    'Netherlands, NLD',
-    'Norway, NOR',
-    'Nepal, NPL',
-    'Nauru, NRU',
-    'New Zealand, NZL',
-    'Oman, OMN',
-    'Pakistan, PAK',
-    'Panama, PAN',
-    'Pitcairn Islands, PCN',
-    'Peru, PER',
-    'Philippines, PHL',
-    'Palau, PLW',
-    'Papua New Guinea, PNG',
-    'Poland, POL',
-    'Puerto Rico, PRI',
-    'Dem. Rep. Korea, PRK',
-    'Portugal, PRT',
-    'Paraguay, PRY',
-    'Palestine, PSE',
-    'French Polynesia, PYF',
-    'Qatar, QAT',
-    'Reunion, REU',
-    'Romania, ROU',
-    'Russian Federation, RUS',
-    'Rwanda, RWA',
-    'Saudi Arabia, SAU',
-    'Sudan, SDN',
-    'Senegal, SEN',
-    'Singapore, SGP',
-    'South Georgia and South Sandwich Islands, SGS',
-    'Saint Helena, SHN',
-    'Svalbard and Jan Mayen, SJM',
-    'Solomon Islands, SLB',
-    'Sierra Leone, SLE',
-    'El Salvador, SLV',
-    'San Marino, SMR',
-    'Somalia, SOM',
-    'Saint Pierre and Miquelon, SPM',
-    'Serbia, SRB',
-    'South Sudan, SSD',
-    'Sao Tome and Principe, STP',
-    'Suriname, SUR',
-    'Slovakia, SVK',
-    'Slovenia, SVN',
-    'Sweden, SWE',
-    'Swaziland, SWZ',
-    'Sint Maarten, SXM',
-    'Seychelles, SYC',
-    'Syria, SYR',
-    'Turks and Caicos Islands, TCA',
-    'Chad, TCD',
-    'Togo, TGO',
-    'Thailand, THA',
-    'Tajikistan, TJK',
-    'Turkmenistan, TKM',
-    'Timor-Leste, TLS',
-    'Tonga, TON',
-    'Trinidad and Tobago, TTO',
-    'Tunisia, TUN',
-    'Turkey, TUR',
-    'Tuvalu, TUV',
-    'Taiwan, TWN',
-    'Tanzania, TZA',
-    'Uganda, UGA',
-    'Ukraine, UKR',
-    'United States Minor Outlying Islands, UMI',
-    'Uruguay, URY',
-    'United States, USA',
-    'Uzbekistan, UZB',
-    'Vatican, VAT',
-    'Saint Vincent and the Grenadines, VCT',
-    'Venezuela, VEN',
-    'British Virgin Islands, VGB',
-    'United States Virgin Islands, VIR',
-    'Vietnam, VNM',
-    'Vanuatu, VUT',
-    'Wallis and Futuna Islands, WLF',
-    'Samoa, WSM',
-    'Yemen, YEM',
-    'South Africa, ZAF',
-    'Zambia, ZMB',
-    'Zimbabwe, ZWE'
-  ];
+  Future<List<Map<String, dynamic>>> loadCountries() async {
+    final String countriesData =
+        await rootBundle.loadString('assets/countries.json');
+    final List<dynamic> jsonCountries = json.decode(countriesData);
+    return jsonCountries.cast<Map<String, dynamic>>();
+  }
+
+  Future<void> _selectDate(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: selectedDate,
+      firstDate: DateTime(2000),
+      lastDate: DateTime.now(),
+    );
+
+    if (picked != null && picked != selectedDate) {
+      setState(() {
+        selectedDate = picked;
+      });
+    }
+  }
+
+  Map<String, dynamic> getCountryDataByName(String name) {
+    final countryData = locations.firstWhere(
+      (country) => country['name'].toLowerCase() == name.toLowerCase(),
+      orElse: () => {},
+    );
+    return countryData;
+  }
+
+  List<Map<String, dynamic>> locations = [];
+  List<String> countryNames = [];
+
+  @override
+  void initState() {
+    super.initState();
+    loadCountries().then((loadedCountries) {
+      setState(() {
+        locations = loadedCountries;
+        for (var country in locations) {
+          if (country.containsKey('name')) {
+            countryNames.add(country['name'] as String);
+          }
+        }
+      });
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
+    final formattedDate = DateFormat('dd/MM/yyyy').format(selectedDate);
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Firegency'),
         leading: Image.asset(
-          'assets/logo.png', // Replace with your custom image path
-          width: 3, // Adjust the width as needed
-          height: 3, // Adjust the height as needed
+          'assets/logo.png',
+          width: 3,
+          height: 3,
         ),
       ),
-      drawer: const Sidebar(),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
             const Text(
               'Enter your Country:',
               style: TextStyle(fontSize: 18),
+              textAlign: TextAlign.center,
             ),
             const SizedBox(height: 20),
-            Padding(
+            Container(
               padding: const EdgeInsets.symmetric(horizontal: 30),
-              child: textField = AutoCompleteTextField<String>(
+              child: AutoCompleteTextField<String>(
                 key: key,
-                suggestions: locations,
+                suggestions: countryNames,
                 decoration: const InputDecoration(
-                  hintText: 'e.g. Pakistan, PAK',
+                  hintText: 'e.g. Pakistan',
                 ),
                 textChanged: (value) {
-                  selectedLocation = value;
+                  selectedLocation = getCountryDataByName(value);
                 },
                 clearOnSubmit: false,
                 itemBuilder: (context, suggestion) => ListTile(
@@ -345,25 +158,104 @@ class _LocationScreenState extends State<LocationScreen> {
                     suggestion.toLowerCase().startsWith(query.toLowerCase()),
                 itemSubmitted: (value) {
                   setState(() {
-                    selectedLocation = value;
+                    selectedLocation = getCountryDataByName(value);
                   });
                 },
               ),
             ),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () {
-                // Navigate to the next page with the selected location
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) =>
-                        InteractiveMap(selectedLocation: selectedLocation),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 30),
+              child: GestureDetector(
+                onTap: () => _selectDate(context),
+                child: InputDecorator(
+                  decoration: const InputDecoration(
+                    hintText: 'Select a Date',
                   ),
-                );
-              },
-              child: const Text('Next'),
+                  child: Text(
+                    formattedDate,
+                    style: const TextStyle(fontSize: 18),
+                  ),
+                ),
+              ),
             ),
+            const SizedBox(height: 20),
+            const SizedBox(height: 20),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 30),
+              child: ElevatedButton(
+                onPressed: () {
+                  if (selectedLocation.isNotEmpty) {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => InteractiveMap(
+                            selectedLocation: selectedLocation,
+                            selectedDate: selectedDate),
+                      ),
+                    );
+                  } else {
+                    showDialog(
+                      context: context,
+                      builder: (context) {
+                        return AlertDialog(
+                          title: const Text('Invalid Input'),
+                          content:
+                              const Text('Please enter a valid country name.'),
+                          actions: <Widget>[
+                            TextButton(
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                              },
+                              child: const Text('OK'),
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                  }
+                },
+                child: const Text(
+                  'Next',
+                  style: TextStyle(fontSize: 18),
+                ),
+              ),
+            ),
+            const SizedBox(height: 20),
+
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 30),
+              child: RichText(
+                  text: const TextSpan(
+                children: [
+                  TextSpan(
+                    text: 'Dont forget to click ',
+                    style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.grey),
+                  ),
+                  WidgetSpan(
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(
+                          horizontal: 4.0),
+                      child: Icon(
+                        Icons.info_rounded,
+                        size:20,
+                        color: Color.fromARGB(255, 0, 225, 8),
+                      ),
+                    ),
+                  ),
+                  TextSpan(
+                    text:
+                        ' icon to see fun facts and more info regarding fires',
+                    style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.grey),
+                  ),
+                ],
+              )),
+            )
           ],
         ),
       ),
