@@ -206,7 +206,7 @@ class _InteractiveMapState extends State<InteractiveMap> {
           child: AlertDialog(
             title: const Text('No Data Available'),
             content:
-                const Text('There is no data available for this location.'),
+                const Text('There is no data available for this date at the selected Location.'),
             actions: <Widget>[
               TextButton(
                 child: const Text("Back to Main"),
