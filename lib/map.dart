@@ -41,6 +41,7 @@ class _InteractiveMapState extends State<InteractiveMap> {
   bool isBlinking = true; // Add a bool variable for blinking animation
   int selectedMarkerIndex = -1; // To track the selected marker
   late Timer blinkTimer;
+  bool isNoDataDialogShown = false;
 
   // Fetch and parse MODIS data
   String dataDate = (DateTime.now()).toString().split(' ')[0];
@@ -60,9 +61,9 @@ class _InteractiveMapState extends State<InteractiveMap> {
       final csvData =
           const CsvToListConverter().convert(responseToday.body, eol: "\n");
       csvData.removeAt(0);
-      print(csvData);
       return csvData;
     }
+    return null;
   }
 
   Future<Map<String, List<String>>> loadInfo() async {
@@ -197,8 +198,39 @@ class _InteractiveMapState extends State<InteractiveMap> {
     );
   }
 
+  void _showNoDataDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Center(
+          child: AlertDialog(
+            title: const Text('No Data Available'),
+            content:
+                const Text('There is no data available for this location.'),
+            actions: <Widget>[
+              TextButton(
+                child: const Text("Back to Main"),
+                onPressed: () {
+                  Navigator.popUntil(context, (route) => route.isFirst);
+                },
+              ),
+              TextButton(
+                child: const Text("OK"),
+                onPressed: () {
+                  // Close the dialog and show the map with no fire icons
+                  Navigator.pop(context);
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final markers = <Marker>[];
     return Scaffold(
       appBar: AppBar(
         title: const Text('Firegency'),
@@ -221,12 +253,11 @@ class _InteractiveMapState extends State<InteractiveMap> {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return const Center(child: CircularProgressIndicator());
               } else if (snapshot.hasError) {
-                return Center(child: Text('Error: ${snapshot.error}'));
-              } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                return const Center(child: Text('No data available'));
+                return Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                    child: Center(child: Text('Error: ${snapshot.error}')));
               } else {
                 final modisData = snapshot.data!;
-                final markers = <Marker>[];
 
                 for (final data in modisData) {
                   if (data.length >= 3) {
@@ -247,31 +278,34 @@ class _InteractiveMapState extends State<InteractiveMap> {
                     }
                   }
                 } // Logic to create markers from modisData
-
-                if (markers.isEmpty) {
-                  return const Center(child: Text('No valid data available'));
-                } else {
-                  return FlutterMap(
-                    options: MapOptions(
-                        zoom: 5.0,
-                        bounds: LatLngBounds(
-                            LatLng(widget.selectedLocation['coordinates'][0],
-                                widget.selectedLocation['coordinates'][1]),
-                            LatLng(widget.selectedLocation['coordinates'][2],
-                                widget.selectedLocation['coordinates'][3]))),
-                    children: [
-                      TileLayer(
-                        urlTemplate:
-                            'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
-                        subdomains: const ['a', 'b', 'c', 'd'],
-                      ),
-                      MarkerLayer(
-                        markers: markers + randomMarkers, // Add random markers
-                      ),
-                    ],
-                  );
-                }
               }
+              if (markers.isEmpty && !isNoDataDialogShown) {
+                isNoDataDialogShown = true; // Set the flag to true
+                Future.delayed(Duration.zero, () {
+                  _showNoDataDialog(context);
+                });
+              }
+              return FlutterMap(
+                options: MapOptions(
+                    zoom: 5.0,
+                    bounds: LatLngBounds(
+                        LatLng(widget.selectedLocation['coordinates'][0],
+                            widget.selectedLocation['coordinates'][1]),
+                        LatLng(widget.selectedLocation['coordinates'][2],
+                            widget.selectedLocation['coordinates'][3]))),
+                children: [
+                  TileLayer(
+                    urlTemplate:
+                        'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
+                    subdomains: const ['a', 'b', 'c', 'd'],
+                  ),
+                  MarkerLayer(
+                    markers: markers.isNotEmpty
+                        ? markers + randomMarkers
+                        : randomMarkers,
+                  ),
+                ],
+              );
             },
           ),
           Positioned(
